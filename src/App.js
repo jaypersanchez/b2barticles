@@ -5,11 +5,15 @@ import Web3 from 'web3';
 import logo from './logo.svg';
 import './App.css';
 
+
 function App() {
 
   const [currentAccount, setAccount] = useState();
   const [currentAccountBalance, setAccountBalance] = useState();
   const [networkId, setNetworkId] = useState();
+  const [show, setShow] = useState(false);
+  const handleClose = () => setShow(false);
+  const handleShow = () => setShow(true);
 
   const loadWeb3 = async() => {
     if(window.ethereum) {
@@ -43,6 +47,10 @@ function App() {
     loadWalletData();
   })
 
+  const addArticleDetails = async(e) => {
+    handleShow();
+  } 
+
   return (
     <div className="App">
       <header className="App-header">
@@ -59,7 +67,22 @@ function App() {
         className="mb-3"
       >
         <Tab eventKey="B2BSell" title="Articles for Sale">
+        <div style={{backgroundColor:'lightskyblue', padding:"20px"}}>
+          <h1>Articles for Sale</h1>
+          <Button variant="primary" onClick={(e) => addArticleDetails(e)}>Add Article to Sell</Button>
+          <Modal show={show} onHide={handleClose}>
+              <Modal.Header closeButton>
+                <Modal.Title>Add Article to Sell</Modal.Title>
+              </Modal.Header>
+              <Modal.Body>
 
+              </Modal.Body>
+              <Modal.Footer>
+              <Button variant="secondary" onClick={(e) => addArticleDetails(e)}>Add</Button>
+                <Button variant="secondary" onClick={handleClose}>Close</Button>
+              </Modal.Footer>
+            </Modal>
+        </div>
         </Tab>
         <Tab eventKey="B2BBuy" title="Bought Articles">
 
