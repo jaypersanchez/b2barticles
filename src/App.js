@@ -4,6 +4,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import Web3 from 'web3';
 import logo from './logo.svg';
 import './App.css';
+import B2BABI from './abi/b2barticles.json'
 
 
 function App() {
@@ -14,6 +15,17 @@ function App() {
   const [show, setShow] = useState(false);
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
+  const [articleName, setArticleName] = useState();
+  const [articleCost, setArticleCost] = useState();
+  const [articleDescription, setArticleDescription] = useState();
+  const [b2baritclesaddress, setb2barticlesaddress] = useState("0xe7768987C6Fb1A283CFF04cd3602284f7265B6f7");
+
+  //array reference for getArticles returned result.
+  const SELLER_ADDRESS = 0;
+  const BUYER_ADDRESS = 1;
+  const ARTICLE_NAME = 2;
+  const ARTICLE_DESC = 3;
+  const ARTICLE_PRICE = 4;
 
   const loadWeb3 = async() => {
     if(window.ethereum) {
@@ -45,11 +57,27 @@ function App() {
     loadWeb3();
     //by calling getAccounts, we will know if we are connected to metamask
     loadWalletData();
+    //get list of articles owned by current wallet address
+    getArticles();
   })
 
   const addArticleDetails = async(e) => {
     handleShow();
   } 
+
+  const getArticles = async() => {
+    var web3 = new Web3(Web3.givenProvider);
+    var _b2bInstance = new web3.eth.Contract(B2BABI, b2baritclesaddress)
+    //let _articles = await _b2bInstance.methods.getArticle().call();
+    _b2bInstance.methods.getArticle().call()
+    .then(articles => {
+      for(i=0; i<=articles; i++) {
+        arti  
+      }
+      console.log(`Articles ${articles[SELLER_ADDRESS]} ${articles[BUYER_ADDRESS]} ${articles[ARTICLE_NAME]} ${articles[ARTICLE_DESC]} ${articles[ARTICLE_PRICE]}`)
+    })
+    //console.log(`Articles for sale ${_articles}`)
+  }
 
   return (
     <div className="App">
@@ -75,7 +103,11 @@ function App() {
                 <Modal.Title>Add Article to Sell</Modal.Title>
               </Modal.Header>
               <Modal.Body>
-
+              <Form.Group className='mb-3' id="balance">
+                <Form.Control placeholder='Name of Article' onChange={(e) => {setArticleName(e.target.value)}}/>
+                <Form.Control placeholder='Cost in ETH' onChange={(e) => {setArticleCost(e.target.value)}}/>
+                <Form.Control placeholder='Description' onChange={(e) => {setArticleDescription(e.target.value)}}/>
+              </Form.Group>
               </Modal.Body>
               <Modal.Footer>
               <Button variant="secondary" onClick={(e) => addArticleDetails(e)}>Add</Button>
