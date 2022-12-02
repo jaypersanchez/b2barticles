@@ -18,7 +18,7 @@ function App() {
   const [articleName, setArticleName] = useState();
   const [articleCost, setArticleCost] = useState();
   const [articleDescription, setArticleDescription] = useState();
-  const [b2baritclesaddress, setb2barticlesaddress] = useState("0xe7768987C6Fb1A283CFF04cd3602284f7265B6f7");
+  const [b2baritclesaddress, setb2barticlesaddress] = useState("0x12cc060dba59343B90af384a4018658B1ac621Bf");
 
   //array reference for getArticles returned result.
   const SELLER_ADDRESS = 0;
@@ -62,6 +62,9 @@ function App() {
   })
 
   const addArticleDetails = async(e) => {
+    var web3 = new Web3(Web3.givenProvider);
+    var _b2bInstance = new web3.eth.Contract(B2BABI, b2baritclesaddress)
+    _b2bInstance.methods.sellArticle(articleName, articleDescription, articleCost).send({from: currentAccount});
     handleShow();
   } 
 
@@ -71,9 +74,6 @@ function App() {
     //let _articles = await _b2bInstance.methods.getArticle().call();
     _b2bInstance.methods.getArticle().call()
     .then(articles => {
-      for(i=0; i<=articles; i++) {
-        arti  
-      }
       console.log(`Articles ${articles[SELLER_ADDRESS]} ${articles[BUYER_ADDRESS]} ${articles[ARTICLE_NAME]} ${articles[ARTICLE_DESC]} ${articles[ARTICLE_PRICE]}`)
     })
     //console.log(`Articles for sale ${_articles}`)
@@ -97,7 +97,7 @@ function App() {
         <Tab eventKey="B2BSell" title="Articles for Sale">
         <div style={{backgroundColor:'lightskyblue', padding:"20px"}}>
           <h1>Articles for Sale</h1>
-          <Button variant="primary" onClick={(e) => addArticleDetails(e)}>Add Article to Sell</Button>
+          <Button variant="primary" onClick={(e) => handleShow()}>Add Article to Sell</Button>
           <Modal show={show} onHide={handleClose}>
               <Modal.Header closeButton>
                 <Modal.Title>Add Article to Sell</Modal.Title>
@@ -114,6 +114,9 @@ function App() {
                 <Button variant="secondary" onClick={handleClose}>Close</Button>
               </Modal.Footer>
             </Modal>
+        </div>
+        <div style={{backgroundColor:'white', padding:"20px"}}>
+
         </div>
         </Tab>
         <Tab eventKey="B2BBuy" title="Bought Articles">
