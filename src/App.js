@@ -20,6 +20,10 @@ function App() {
   const [articleDescription, setArticleDescription] = useState();
   const [b2baritclesaddress, setb2barticlesaddress] = useState("0xf287fc132B1E1717c1Bf1ffaF45dB753368a4c0d");
   const [numberOfArticlesForSale, setNumberOfArticlesForSale] = useState(0);
+  const [articleid, setarticleid] = useState();
+  const [articlename, setarticlename] = useState();
+  const [listofarticles, setListOfArticles] = useState([]) 
+  let arrayArticles=[];
 
   //array reference for getArticles returned result.
   const SELLER_ADDRESS = 0;
@@ -61,7 +65,7 @@ function App() {
     //get list of articles owned by current wallet address
     getNumberOfArticles();
     getArticles();
-  })
+  },[])
 
   const addArticleDetails = async(e) => {
     var web3 = new Web3(Web3.givenProvider);
@@ -81,6 +85,10 @@ function App() {
         //get article by the id
         _b2bInstance.methods.articles(element).call()
         .then(anArtical => {
+            //setarticleid(anArtical[0]);
+            //setarticlename(anArtical[1])
+            //setListOfArticles(...anArtical.listofarticles,{articleid: articleid, ariclename: //articlename});
+            arrayArticles.push({articleid: anArtical[0], articlename: anArtical[3]});
             console.log(`Article ${anArtical[0]} ${anArtical[3]}`)  
           })
       });
@@ -139,7 +147,14 @@ function App() {
             </Modal>
         </div>
         <div style={{backgroundColor:'white', padding:"20px"}}>
-
+           <ol>
+            {
+                arrayArticles.forEach(element => {
+                  console.log(`element ${element}`)
+                  return <li>element.articleid</li>;
+                })  
+            }
+           </ol>
         </div>
         </Tab>
         <Tab eventKey="B2BBuy" title="Bought Articles">
