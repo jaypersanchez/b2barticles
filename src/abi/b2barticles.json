@@ -1,9 +1,38 @@
 [
 	{
-		"inputs": [],
+		"constant": false,
+		"inputs": [
+			{
+				"name": "_id",
+				"type": "uint256"
+			}
+		],
 		"name": "buyArticle",
 		"outputs": [],
+		"payable": true,
 		"stateMutability": "payable",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"name": "_name",
+				"type": "string"
+			},
+			{
+				"name": "_description",
+				"type": "string"
+			},
+			{
+				"name": "_price",
+				"type": "uint256"
+			}
+		],
+		"name": "sellArticle",
+		"outputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
 		"type": "function"
 	},
 	{
@@ -11,50 +40,21 @@
 		"inputs": [
 			{
 				"indexed": true,
-				"internalType": "address",
-				"name": "_seller",
-				"type": "address"
-			},
-			{
-				"indexed": true,
-				"internalType": "address",
-				"name": "_buyer",
-				"type": "address"
-			},
-			{
-				"indexed": false,
-				"internalType": "string",
-				"name": "_name",
-				"type": "string"
-			},
-			{
-				"indexed": false,
-				"internalType": "uint256",
-				"name": "_price",
+				"name": "_id",
 				"type": "uint256"
-			}
-		],
-		"name": "LogBuyArticle",
-		"type": "event"
-	},
-	{
-		"anonymous": false,
-		"inputs": [
+			},
 			{
 				"indexed": true,
-				"internalType": "address",
 				"name": "_seller",
 				"type": "address"
 			},
 			{
 				"indexed": false,
-				"internalType": "string",
 				"name": "_name",
 				"type": "string"
 			},
 			{
 				"indexed": false,
-				"internalType": "uint256",
 				"name": "_price",
 				"type": "uint256"
 			}
@@ -63,58 +63,101 @@
 		"type": "event"
 	},
 	{
+		"anonymous": false,
 		"inputs": [
 			{
-				"internalType": "string",
-				"name": "_name",
-				"type": "string"
-			},
-			{
-				"internalType": "string",
-				"name": "_description",
-				"type": "string"
-			},
-			{
-				"internalType": "uint256",
-				"name": "_price",
+				"indexed": true,
+				"name": "_id",
 				"type": "uint256"
-			}
-		],
-		"name": "sellArticle",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [],
-		"name": "getArticle",
-		"outputs": [
+			},
 			{
-				"internalType": "address",
+				"indexed": true,
 				"name": "_seller",
 				"type": "address"
 			},
 			{
-				"internalType": "address",
+				"indexed": true,
 				"name": "_buyer",
 				"type": "address"
 			},
 			{
-				"internalType": "string",
+				"indexed": false,
 				"name": "_name",
 				"type": "string"
 			},
 			{
-				"internalType": "string",
-				"name": "_description",
-				"type": "string"
-			},
-			{
-				"internalType": "uint256",
+				"indexed": false,
 				"name": "_price",
 				"type": "uint256"
 			}
 		],
+		"name": "LogBuyArticle",
+		"type": "event"
+	},
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"name": "articles",
+		"outputs": [
+			{
+				"name": "id",
+				"type": "uint256"
+			},
+			{
+				"name": "seller",
+				"type": "address"
+			},
+			{
+				"name": "buyer",
+				"type": "address"
+			},
+			{
+				"name": "name",
+				"type": "string"
+			},
+			{
+				"name": "description",
+				"type": "string"
+			},
+			{
+				"name": "price",
+				"type": "uint256"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [],
+		"name": "getArticlesForSale",
+		"outputs": [
+			{
+				"name": "",
+				"type": "uint256[]"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [],
+		"name": "getNumberOfArticles",
+		"outputs": [
+			{
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"payable": false,
 		"stateMutability": "view",
 		"type": "function"
 	}

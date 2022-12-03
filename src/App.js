@@ -18,7 +18,8 @@ function App() {
   const [articleName, setArticleName] = useState();
   const [articleCost, setArticleCost] = useState();
   const [articleDescription, setArticleDescription] = useState();
-  const [b2baritclesaddress, setb2barticlesaddress] = useState("0x12cc060dba59343B90af384a4018658B1ac621Bf");
+  const [b2baritclesaddress, setb2barticlesaddress] = useState("0xf287fc132B1E1717c1Bf1ffaF45dB753368a4c0d");
+  const [numberOfArticlesForSale, setNumberOfArticlesForSale] = useState(0);
 
   //array reference for getArticles returned result.
   const SELLER_ADDRESS = 0;
@@ -58,6 +59,7 @@ function App() {
     //by calling getAccounts, we will know if we are connected to metamask
     loadWalletData();
     //get list of articles owned by current wallet address
+    getNumberOfArticles();
     getArticles();
   })
 
@@ -72,9 +74,30 @@ function App() {
     var web3 = new Web3(Web3.givenProvider);
     var _b2bInstance = new web3.eth.Contract(B2BABI, b2baritclesaddress)
     //let _articles = await _b2bInstance.methods.getArticle().call();
-    _b2bInstance.methods.getArticle().call()
+    _b2bInstance.methods.getArticlesForSale().call()
     .then(articles => {
-      console.log(`Articles ${articles[SELLER_ADDRESS]} ${articles[BUYER_ADDRESS]} ${articles[ARTICLE_NAME]} ${articles[ARTICLE_DESC]} ${articles[ARTICLE_PRICE]}`)
+      
+      articles.forEach(element => {
+        //get article by the id
+        _b2bInstance.methods.articles(element).call()
+        .then(anArtical => {
+            console.log(`Article ${anArtical[0]} ${anArtical[3]}`)  
+          })
+      });
+      
+    })
+    //console.log(`Articles for sale ${_articles}`)
+  }
+
+  //returns the number of articles for sale
+  const getNumberOfArticles = async() => {
+    var web3 = new Web3(Web3.givenProvider);
+    var _b2bInstance = new web3.eth.Contract(B2BABI, b2baritclesaddress)
+    //let _articles = await _b2bInstance.methods.getArticle().call();
+    _b2bInstance.methods.getNumberOfArticles().call()
+    .then(numArticles => {
+      setNumberOfArticlesForSale(numArticles)
+      //console.log(`There are ${numArticles} Articles available for sale`);
     })
     //console.log(`Articles for sale ${_articles}`)
   }
@@ -96,7 +119,7 @@ function App() {
       >
         <Tab eventKey="B2BSell" title="Articles for Sale">
         <div style={{backgroundColor:'lightskyblue', padding:"20px"}}>
-          <h1>Articles for Sale</h1>
+          <h1>There are {numberOfArticlesForSale} Articles for Sale</h1>
           <Button variant="primary" onClick={(e) => handleShow()}>Add Article to Sell</Button>
           <Modal show={show} onHide={handleClose}>
               <Modal.Header closeButton>
