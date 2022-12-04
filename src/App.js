@@ -23,12 +23,13 @@ function App() {
   const [b2baritclesaddress, setb2barticlesaddress] = useState("0xf287fc132B1E1717c1Bf1ffaF45dB753368a4c0d");
   const [numberOfArticlesForSale, setNumberOfArticlesForSale] = useState(0);
   const columns = [
-    { field: 'articleId', header: 'ID', width: 10},
+    { field: 'id', header: 'ID', width: 10},
     { field: 'articleName', headerName: 'Article', width: 130 },
     { field: 'articleDesc', headerName: 'Description', width: 130 },
     { field: 'articlePrice', headerName: 'Price', width: 10 }
   ];
   const [datarows, setdatarows] = useState([])
+  const [datarowsloading, setdatarowsloading] = useState(false);
   //var datarows = new Array();
 
   const loadWeb3 = async() => {
@@ -70,21 +71,18 @@ function App() {
     var _b2bInstance = new web3.eth.Contract(B2BABI, b2baritclesaddress)
     _b2bInstance.methods.getArticlesForSale().call()
     .then(articles => {
-      let id = 0
       articles.forEach(element => {
         //get article by the id
         _b2bInstance.methods.articles(element).call()
         .then(anArtical => {
-          
-          if(datarows.indexOf({id: anArtical[0], articleName: anArtical[3], articleDesc: anArtical[4], articlePrice: anArtical[5]}) === -1) {
+            setdatarowsloading(true);
             console.log(`{id: ${anArtical[0]}, articleName: ${anArtical[3]}, articleDesc: ${anArtical[4]}, articlePrice: ${anArtical[5]} `)
             setdatarows(datarows => [...datarows, {id: anArtical[0], articleName: anArtical[3], articleDesc: anArtical[4], articlePrice: anArtical[5]} ])
-          }
-          
         })
       });
+      setdatarowsloading(false); 
     })
-  }, [numberOfArticlesForSale])
+  },[datarowsloading])
 
   const addArticleDetails = async(e) => {
     var web3 = new Web3(Web3.givenProvider);
