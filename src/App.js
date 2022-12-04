@@ -5,6 +5,8 @@ import Web3 from 'web3';
 import logo from './logo.svg';
 import './App.css';
 import B2BABI from './abi/b2barticles.json'
+import { DataGrid, GridColDef, GridValueGetterParams } from '@mui/x-data-grid';
+
 
 
 function App() {
@@ -20,17 +22,13 @@ function App() {
   const [articleDescription, setArticleDescription] = useState();
   const [b2baritclesaddress, setb2barticlesaddress] = useState("0xf287fc132B1E1717c1Bf1ffaF45dB753368a4c0d");
   const [numberOfArticlesForSale, setNumberOfArticlesForSale] = useState(0);
-  const [articleid, setarticleid] = useState();
-  const [articlename, setarticlename] = useState();
-  const [listofarticles, setListOfArticles] = useState([]) 
-  let arrayArticles=[];
-
-  //array reference for getArticles returned result.
-  const SELLER_ADDRESS = 0;
-  const BUYER_ADDRESS = 1;
-  const ARTICLE_NAME = 2;
-  const ARTICLE_DESC = 3;
-  const ARTICLE_PRICE = 4;
+  const columns = [
+    { field: 'articleId', header: 'ID', width: 10},
+    { field: 'articleName', headerName: 'Article', width: 130 },
+    { field: 'articleDesc', headerName: 'Description', width: 130 },
+    { field: 'articlePrice', headerName: 'Price', width: 10 }
+  ];
+  var datarows = new Array();
 
   const loadWeb3 = async() => {
     if(window.ethereum) {
@@ -62,10 +60,26 @@ function App() {
     loadWeb3();
     //by calling getAccounts, we will know if we are connected to metamask
     loadWalletData();
+  })
+
+  useEffect(() => {
     //get list of articles owned by current wallet address
     getNumberOfArticles();
-    getArticles();
-  },[])
+    var web3 = new Web3(Web3.givenProvider);
+    var _b2bInstance = new web3.eth.Contract(B2BABI, b2baritclesaddress)
+    _b2bInstance.methods.getArticlesForSale().call()
+    .then(articles => {
+      let id = 0
+      articles.forEach(element => {
+        //get article by the id
+        _b2bInstance.methods.articles(element).call()
+        .then(anArtical => {
+          console.log(`{id: ${anArtical[0]}, articleName: ${anArtical[3]}, articleDesc: ${anArtical[4]}, articlePrice: ${anArtical[5]} `)  
+          datarows.push ( {id: anArtical[0], articleName: anArtical[3], articleDesc: anArtical[4], articlePrice: anArtical[5]} )
+        })
+      });
+    })
+  })
 
   const addArticleDetails = async(e) => {
     var web3 = new Web3(Web3.givenProvider);
@@ -77,37 +91,29 @@ function App() {
   const getArticles = async() => {
     var web3 = new Web3(Web3.givenProvider);
     var _b2bInstance = new web3.eth.Contract(B2BABI, b2baritclesaddress)
-    //let _articles = await _b2bInstance.methods.getArticle().call();
     _b2bInstance.methods.getArticlesForSale().call()
     .then(articles => {
-      
+      let id = 0
       articles.forEach(element => {
         //get article by the id
         _b2bInstance.methods.articles(element).call()
         .then(anArtical => {
-            //setarticleid(anArtical[0]);
-            //setarticlename(anArtical[1])
-            //setListOfArticles(...anArtical.listofarticles,{articleid: articleid, ariclename: //articlename});
-            arrayArticles.push({articleid: anArtical[0], articlename: anArtical[3]});
-            console.log(`Article ${anArtical[0]} ${anArtical[3]}`)  
-          })
+          console.log(`{id: ${anArtical[0]}, articleName: ${anArtical[3]}, articleDesc: ${anArtical[4]}, articlePrice: ${anArtical[5]} `)  
+            /*datarows.push ( {id: anArtical[0], articleName: anArtical[3], articleDesc: anArtical[4], articlePrice: anArtical[5]} )
+            id++;*/
+        })
       });
-      
     })
-    //console.log(`Articles for sale ${_articles}`)
   }
 
   //returns the number of articles for sale
   const getNumberOfArticles = async() => {
     var web3 = new Web3(Web3.givenProvider);
     var _b2bInstance = new web3.eth.Contract(B2BABI, b2baritclesaddress)
-    //let _articles = await _b2bInstance.methods.getArticle().call();
     _b2bInstance.methods.getNumberOfArticles().call()
     .then(numArticles => {
       setNumberOfArticlesForSale(numArticles)
-      //console.log(`There are ${numArticles} Articles available for sale`);
     })
-    //console.log(`Articles for sale ${_articles}`)
   }
 
   return (
@@ -146,16 +152,19 @@ function App() {
               </Modal.Footer>
             </Modal>
         </div>
-        <div style={{backgroundColor:'white', padding:"20px"}}>
-           <ol>
-            {
-                arrayArticles.forEach(element => {
-                  console.log(`element ${element}`)
-                  return <li>element.articleid</li>;
-                })  
-            }
-           </ol>
+        
+          
+        <div style={{ backgroundColor:'lightgrey', height: 400, width: '100%' }}>
+          <DataGrid
+            rows={datarows}
+            columns={columns}
+            pageSize={5}
+            rowsPerPageOptions={[5]}
+            checkboxSelection
+          />
         </div>
+
+        
         </Tab>
         <Tab eventKey="B2BBuy" title="Bought Articles">
 
