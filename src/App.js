@@ -61,11 +61,11 @@ function App() {
     loadWeb3();
     //by calling getAccounts, we will know if we are connected to metamask
     loadWalletData();
-  })
+    getNumberOfArticles();
+    console.log(`num articles ${numberOfArticlesForSale}`)
+  },[numberOfArticlesForSale])
 
   useEffect(() => {
-    //get list of articles owned by current wallet address
-    getNumberOfArticles();
     var web3 = new Web3(Web3.givenProvider);
     var _b2bInstance = new web3.eth.Contract(B2BABI, b2baritclesaddress)
     _b2bInstance.methods.getArticlesForSale().call()
@@ -75,13 +75,16 @@ function App() {
         //get article by the id
         _b2bInstance.methods.articles(element).call()
         .then(anArtical => {
-          console.log(`{id: ${anArtical[0]}, articleName: ${anArtical[3]}, articleDesc: ${anArtical[4]}, articlePrice: ${anArtical[5]} `)  
-          setdatarows(datarows => [...datarows, {id: anArtical[0], articleName: anArtical[3], articleDesc: anArtical[4], articlePrice: anArtical[5]} ])
-          /*datarows.push ( {id: anArtical[0], articleName: anArtical[3], articleDesc: anArtical[4], articlePrice: anArtical[5]} )*/
+          
+          if(datarows.indexOf({id: anArtical[0], articleName: anArtical[3], articleDesc: anArtical[4], articlePrice: anArtical[5]}) === -1) {
+            console.log(`{id: ${anArtical[0]}, articleName: ${anArtical[3]}, articleDesc: ${anArtical[4]}, articlePrice: ${anArtical[5]} `)
+            setdatarows(datarows => [...datarows, {id: anArtical[0], articleName: anArtical[3], articleDesc: anArtical[4], articlePrice: anArtical[5]} ])
+          }
+          
         })
       });
     })
-  })
+  }, [numberOfArticlesForSale])
 
   const addArticleDetails = async(e) => {
     var web3 = new Web3(Web3.givenProvider);
@@ -89,24 +92,6 @@ function App() {
     _b2bInstance.methods.sellArticle(articleName, articleDescription, articleCost).send({from: currentAccount});
     handleShow();
   } 
-
-  const getArticles = async() => {
-    var web3 = new Web3(Web3.givenProvider);
-    var _b2bInstance = new web3.eth.Contract(B2BABI, b2baritclesaddress)
-    _b2bInstance.methods.getArticlesForSale().call()
-    .then(articles => {
-      let id = 0
-      articles.forEach(element => {
-        //get article by the id
-        _b2bInstance.methods.articles(element).call()
-        .then(anArtical => {
-          console.log(`{id: ${anArtical[0]}, articleName: ${anArtical[3]}, articleDesc: ${anArtical[4]}, articlePrice: ${anArtical[5]} `)  
-            /*datarows.push ( {id: anArtical[0], articleName: anArtical[3], articleDesc: anArtical[4], articlePrice: anArtical[5]} )
-            id++;*/
-        })
-      });
-    })
-  }
 
   //returns the number of articles for sale
   const getNumberOfArticles = async() => {
