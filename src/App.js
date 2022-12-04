@@ -28,7 +28,8 @@ function App() {
     { field: 'articleDesc', headerName: 'Description', width: 130 },
     { field: 'articlePrice', headerName: 'Price', width: 10 }
   ];
-  var datarows = new Array();
+  const [datarows, setdatarows] = useState([])
+  //var datarows = new Array();
 
   const loadWeb3 = async() => {
     if(window.ethereum) {
@@ -75,7 +76,8 @@ function App() {
         _b2bInstance.methods.articles(element).call()
         .then(anArtical => {
           console.log(`{id: ${anArtical[0]}, articleName: ${anArtical[3]}, articleDesc: ${anArtical[4]}, articlePrice: ${anArtical[5]} `)  
-          datarows.push ( {id: anArtical[0], articleName: anArtical[3], articleDesc: anArtical[4], articlePrice: anArtical[5]} )
+          setdatarows(datarows => [...datarows, {id: anArtical[0], articleName: anArtical[3], articleDesc: anArtical[4], articlePrice: anArtical[5]} ])
+          /*datarows.push ( {id: anArtical[0], articleName: anArtical[3], articleDesc: anArtical[4], articlePrice: anArtical[5]} )*/
         })
       });
     })
