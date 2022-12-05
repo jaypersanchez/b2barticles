@@ -30,8 +30,7 @@ function App() {
   ];
   const [datarows, setdatarows] = useState([])
   const [datarowsloading, setdatarowsloading] = useState(false);
-  //var datarows = new Array();
-
+  
   const loadWeb3 = async() => {
     if(window.ethereum) {
       window.web3 = new Web3(window.ethereum);
@@ -63,11 +62,14 @@ function App() {
     //by calling getAccounts, we will know if we are connected to metamask
     loadWalletData();
     getNumberOfArticles();
+    
     console.log(`num articles ${numberOfArticlesForSale}`)
-  },[numberOfArticlesForSale])
+  })
+
 
   useEffect(() => {
     var web3 = new Web3(Web3.givenProvider);
+    let counter = 0
     var _b2bInstance = new web3.eth.Contract(B2BABI, b2baritclesaddress)
     _b2bInstance.methods.getArticlesForSale().call()
     .then(articles => {
@@ -75,14 +77,21 @@ function App() {
         //get article by the id
         _b2bInstance.methods.articles(element).call()
         .then(anArtical => {
+          
             setdatarowsloading(true);
-            console.log(`{id: ${anArtical[0]}, articleName: ${anArtical[3]}, articleDesc: ${anArtical[4]}, articlePrice: ${anArtical[5]} `)
-            setdatarows(datarows => [...datarows, {id: anArtical[0], articleName: anArtical[3], articleDesc: anArtical[4], articlePrice: anArtical[5]} ])
+              console.log(`{id: ${anArtical[0]}, articleName: ${anArtical[3]}, articleDesc: ${anArtical[4]}, articlePrice: ${anArtical[5]} `)
+              /*if(datarows.indexOf({id: anArtical[0], articleName: anArtical[3], articleDesc: anArtical[4], articlePrice: anArtical[5]} !== -1)) {*/
+                setdatarows(datarows => [...datarows, {id: anArtical[0], articleName: anArtical[3], articleDesc: anArtical[4], articlePrice: anArtical[5]} ])
+                
+              //}
+            //}
+            //counter++;
         })
       });
       setdatarowsloading(false); 
-    })
-  },[datarowsloading])
+    }) 
+    // eslint-disable-next-line
+  },[])
 
   const addArticleDetails = async(e) => {
     var web3 = new Web3(Web3.givenProvider);
@@ -100,6 +109,12 @@ function App() {
       setNumberOfArticlesForSale(numArticles)
     })
   }
+
+  const onRowsSelectionHandler = async(ids) => {
+    console.log(ids)
+    const selectedRowsData = ids.map((id) => datarows.find((row) => row.id === id));
+    console.log(selectedRowsData);
+  };
 
   return (
     <div className="App">
@@ -143,9 +158,10 @@ function App() {
           <DataGrid
             rows={datarows}
             columns={columns}
-            pageSize={5}
+            pageSize={10}
             rowsPerPageOptions={[5]}
-            checkboxSelection
+            checkboxSelection={true}
+            onSortModelChange={(ids) => onRowsSelectionHandler(ids)}
           />
         </div>
 
