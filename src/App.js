@@ -147,8 +147,6 @@ function App() {
               </Modal.Footer>
             </Modal>
         </div>
-        
-          
         <div style={{ backgroundColor:'lightgrey', height: 400, width: '100%' }}>
           <DataGrid
             rows={datarows}
@@ -158,8 +156,11 @@ function App() {
             checkboxSelection={true} {...datarows}
           />
         </div>
-
-        
+        </Tab>
+        <Tab eventKey="B2BBuy" title="Buy Article">
+          <div style={{backgroundColor:'lightskyblue', padding:"20px"}}>
+            <h1>There are {numberOfArticlesForSale} Articles Available</h1>
+          </div>
         </Tab>
       </Tabs>
     </div>
