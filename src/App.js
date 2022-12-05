@@ -22,6 +22,7 @@ function App() {
   const [articleDescription, setArticleDescription] = useState();
   const [b2baritclesaddress, setb2barticlesaddress] = useState("0xA7eF103777Fb776b9b877B5D475E14Bb1f315914");
   const [numberOfArticlesForSale, setNumberOfArticlesForSale] = useState(0);
+  const [articletopurchase, setArticleToPurchase] = useState();
   const columns = [
     { field: 'id', header: 'ID', width: 10},
     { field: 'articleName', headerName: 'Article', width: 130 },
@@ -111,6 +112,15 @@ function App() {
     console.log(selectedRowsData);
   };
 
+  const purchaseArticle = async() => {
+    var web3 = new Web3(Web3.givenProvider);
+    var _b2bInstance = new web3.eth.Contract(B2BABI, b2baritclesaddress, {
+      from: currentAccount, // default from address
+      gasPrice: '20000000000' // default gas price in wei, 20 gwei in this case
+    })
+    await _b2bInstance.methods.buyArticle(articletopurchase).send({from: currentAccount}); 
+  }
+
   return (
     <div className="App">
       <header className="App-header">
@@ -161,6 +171,12 @@ function App() {
           <div style={{backgroundColor:'lightskyblue', padding:"20px"}}>
             <h1>There are {numberOfArticlesForSale} Articles Available</h1>
           </div>
+          <div>
+            <Form.Group className='mb-3' id="balance">
+                <Form.Control placeholder='Provide Article ID to Purchase' onChange={(e) => {setArticleToPurchase(e.target.value)}}/>
+            </Form.Group>
+          </div>
+          <Button variant="secondary" onClick={(e) => purchaseArticle()}>Buy</Button>
         </Tab>
       </Tabs>
     </div>
