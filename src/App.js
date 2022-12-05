@@ -20,7 +20,7 @@ function App() {
   const [articleName, setArticleName] = useState();
   const [articleCost, setArticleCost] = useState();
   const [articleDescription, setArticleDescription] = useState();
-  const [b2baritclesaddress, setb2barticlesaddress] = useState("0xf287fc132B1E1717c1Bf1ffaF45dB753368a4c0d");
+  const [b2baritclesaddress, setb2barticlesaddress] = useState("0xA7eF103777Fb776b9b877B5D475E14Bb1f315914");
   const [numberOfArticlesForSale, setNumberOfArticlesForSale] = useState(0);
   const columns = [
     { field: 'id', header: 'ID', width: 10},
@@ -80,12 +80,7 @@ function App() {
           
             setdatarowsloading(true);
               console.log(`{id: ${anArtical[0]}, articleName: ${anArtical[3]}, articleDesc: ${anArtical[4]}, articlePrice: ${anArtical[5]} `)
-              /*if(datarows.indexOf({id: anArtical[0], articleName: anArtical[3], articleDesc: anArtical[4], articlePrice: anArtical[5]} !== -1)) {*/
-                setdatarows(datarows => [...datarows, {id: anArtical[0], articleName: anArtical[3], articleDesc: anArtical[4], articlePrice: anArtical[5]} ])
-                
-              //}
-            //}
-            //counter++;
+              setdatarows(datarows => [...datarows, {id: anArtical[0], articleName: anArtical[3], articleDesc: anArtical[4], articlePrice: anArtical[5]} ])
         })
       });
       setdatarowsloading(false); 
@@ -160,15 +155,11 @@ function App() {
             columns={columns}
             pageSize={10}
             rowsPerPageOptions={[5]}
-            checkboxSelection={true}
-            onSortModelChange={(ids) => onRowsSelectionHandler(ids)}
+            checkboxSelection={true} {...datarows}
           />
         </div>
 
         
-        </Tab>
-        <Tab eventKey="B2BBuy" title="Bought Articles">
-
         </Tab>
       </Tabs>
     </div>
