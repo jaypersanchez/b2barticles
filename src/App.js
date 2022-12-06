@@ -1,10 +1,12 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useState, useMemo} from 'react';
 import { Button, Tabs, Tab, Container, Nav, Navbar, Form, Modal, ModalDialog } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Web3 from 'web3';
 import logo from './logo.svg';
 import './App.css';
 import B2BABI from './abi/b2barticles.json'
+import { DataGrid, GridColDef, GridValueGetterParams } from '@mui/x-data-grid';
+
 
 
 function App() {
@@ -18,15 +20,19 @@ function App() {
   const [articleName, setArticleName] = useState();
   const [articleCost, setArticleCost] = useState();
   const [articleDescription, setArticleDescription] = useState();
-  const [b2baritclesaddress, setb2barticlesaddress] = useState("0xe7768987C6Fb1A283CFF04cd3602284f7265B6f7");
-
-  //array reference for getArticles returned result.
-  const SELLER_ADDRESS = 0;
-  const BUYER_ADDRESS = 1;
-  const ARTICLE_NAME = 2;
-  const ARTICLE_DESC = 3;
-  const ARTICLE_PRICE = 4;
-
+  const [b2baritclesaddress, setb2barticlesaddress] = useState("0x5b1869D9A4C187F2EAa108f3062412ecf0526b24");
+  const [numberOfArticlesForSale, setNumberOfArticlesForSale] = useState(0);
+  const [articletopurchase, setArticleToPurchase] = useState();
+  const columns = [
+    { field: 'id', header: 'ID', width: 10},
+    { field: 'articleSeller', header: 'Seller', width: 150 },
+    { field: 'articleName', headerName: 'Article', width: 130 },
+    { field: 'articleDesc', headerName: 'Description', width: 130 },
+    { field: 'articlePrice', headerName: 'Price', width: 10 }
+  ];
+  const [datarows, setdatarows] = useState([])
+  const [datarowsloading, setdatarowsloading] = useState(false);
+  
   const loadWeb3 = async() => {
     if(window.ethereum) {
       window.web3 = new Web3(window.ethereum);
@@ -57,26 +63,78 @@ function App() {
     loadWeb3();
     //by calling getAccounts, we will know if we are connected to metamask
     loadWalletData();
-    //get list of articles owned by current wallet address
-    getArticles();
+    getNumberOfArticles();
+    
+    console.log(`num articles ${numberOfArticlesForSale}`)
   })
 
-  const addArticleDetails = async(e) => {
-    handleShow();
-  } 
 
-  const getArticles = async() => {
+  useMemo(() => {
+    var web3 = new Web3(Web3.givenProvider);
+    let counter = 0
+    var _b2bInstance = new web3.eth.Contract(B2BABI, b2baritclesaddress)
+    _b2bInstance.methods.getArticlesForSale().call()
+    .then(articles => {
+      articles.forEach(element => {
+        //get article by the id
+        _b2bInstance.methods.articles(element).call()
+        .then(anArtical => {
+            console.log(`anArtical ${anArtical.toString()}`)
+            setdatarowsloading(true);
+              /*console.log(`{id: ${anArtical[0]}, articleSeller: ${anArtical[1]}, articleName: ${anArtical[3]}, articleDesc: ${anArtical[4]}, articlePrice: ${anArtical[5]} `)*/
+              setdatarows(datarows => [...datarows, {id: anArtical[0], articaleSeller: anArtical[1], articleName: anArtical[3], articleDesc: anArtical[4], articlePrice: anArtical[5]} ])
+        })
+      });
+      setdatarowsloading(false); 
+    }) 
+    // eslint-disable-next-line
+  },[])
+
+  const addArticleDetails = async(e) => {
     var web3 = new Web3(Web3.givenProvider);
     var _b2bInstance = new web3.eth.Contract(B2BABI, b2baritclesaddress)
-    //let _articles = await _b2bInstance.methods.getArticle().call();
-    _b2bInstance.methods.getArticle().call()
-    .then(articles => {
-      for(i=0; i<=articles; i++) {
-        arti  
-      }
-      console.log(`Articles ${articles[SELLER_ADDRESS]} ${articles[BUYER_ADDRESS]} ${articles[ARTICLE_NAME]} ${articles[ARTICLE_DESC]} ${articles[ARTICLE_PRICE]}`)
+    _b2bInstance.methods.sellArticle(articleName, articleDescription, articleCost).send({from: currentAccount});
+    _b2bInstance.LogSellArticle()(() => {
+    }).on("connected", function(subscriptionId){
+        console.log('SubID: ',subscriptionId);
     })
-    //console.log(`Articles for sale ${_articles}`)
+    .on('data', function(event){
+        console.log('Event:', event);
+        //console.log('Seller Wallet Address: ',event.returnValues.address);
+        //Write send email process here!
+    })
+    .on('changed', function(event){
+        //Do something when it is removed from the database.
+    })
+    .on('error', function(error, receipt) {
+        console.log('Error:', error, receipt);
+    });
+    handleShow()
+  } 
+
+  //returns the number of articles for sale
+  const getNumberOfArticles = async() => {
+    var web3 = new Web3(Web3.givenProvider);
+    var _b2bInstance = new web3.eth.Contract(B2BABI, b2baritclesaddress)
+    _b2bInstance.methods.getNumberOfArticles().call()
+    .then(numArticles => {
+      setNumberOfArticlesForSale(numArticles)
+    })
+  }
+
+  const onRowsSelectionHandler = async(ids) => {
+    console.log(ids)
+    const selectedRowsData = ids.map((id) => datarows.find((row) => row.id === id));
+    console.log(selectedRowsData);
+  };
+
+  const purchaseArticle = async() => {
+    var web3 = new Web3(Web3.givenProvider);
+    var _b2bInstance = new web3.eth.Contract(B2BABI, b2baritclesaddress, {
+      from: currentAccount, // default from address
+      gasPrice: '20000000000' // default gas price in wei, 20 gwei in this case
+    })
+    await _b2bInstance.methods.buyArticle(articletopurchase).send({from: currentAccount}); 
   }
 
   return (
@@ -96,8 +154,8 @@ function App() {
       >
         <Tab eventKey="B2BSell" title="Articles for Sale">
         <div style={{backgroundColor:'lightskyblue', padding:"20px"}}>
-          <h1>Articles for Sale</h1>
-          <Button variant="primary" onClick={(e) => addArticleDetails(e)}>Add Article to Sell</Button>
+          <h1>There are {numberOfArticlesForSale} Articles for Sale</h1>
+          <Button variant="primary" onClick={(e) => handleShow()}>Add Article to Sell</Button>
           <Modal show={show} onHide={handleClose}>
               <Modal.Header closeButton>
                 <Modal.Title>Add Article to Sell</Modal.Title>
@@ -115,9 +173,29 @@ function App() {
               </Modal.Footer>
             </Modal>
         </div>
+        <div style={{ backgroundColor:'lightgrey', height: 400, width: '100%' }}>
+          memo(() => 
+          <DataGrid
+            rows={datarows}
+            columns={columns}
+            pageSize={10}
+            rowsPerPageOptions={[5]}
+            checkboxSelection={true} {...datarows}
+          />
+          )
+          
+        </div>
         </Tab>
-        <Tab eventKey="B2BBuy" title="Bought Articles">
-
+        <Tab eventKey="B2BBuy" title="Buy Article">
+          <div style={{backgroundColor:'lightskyblue', padding:"20px"}}>
+            <h1>There are {numberOfArticlesForSale} Articles Available</h1>
+          </div>
+          <div>
+            <Form.Group className='mb-3' id="balance">
+                <Form.Control placeholder='Provide Article ID to Purchase' onChange={(e) => {setArticleToPurchase(e.target.value)}}/>
+            </Form.Group>
+          </div>
+          <Button variant="secondary" onClick={(e) => purchaseArticle()}>Buy</Button>
         </Tab>
       </Tabs>
     </div>
