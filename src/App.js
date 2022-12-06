@@ -93,8 +93,12 @@ function App() {
   const addArticleDetails = async(e) => {
     var web3 = new Web3(Web3.givenProvider);
     var _b2bInstance = new web3.eth.Contract(B2BABI, b2baritclesaddress)
-    _b2bInstance.methods.sellArticle(articleName, articleDescription, articleCost).send({from: currentAccount});
-    _b2bInstance.LogSellArticle()(() => {
+    _b2bInstance.methods.sellArticle(articleName, articleDescription, articleCost).send({from: currentAccount})
+    .then( results => {
+        console.log(JSON.stringify(results.events.LogSellArticle.returnValues[0]))
+        /*console.log(`add article ${JSON.parse(results.returnValues._id)} ${JSON.parse(results.returnValues._name)}`)*/
+    })
+    /*_b2bInstance.LogSellArticle()(() => {
     }).on("connected", function(subscriptionId){
         console.log('SubID: ',subscriptionId);
     })
@@ -108,7 +112,7 @@ function App() {
     })
     .on('error', function(error, receipt) {
         console.log('Error:', error, receipt);
-    });
+    });*/
     handleShow()
   } 
 
@@ -174,7 +178,7 @@ function App() {
             </Modal>
         </div>
         <div style={{ backgroundColor:'lightgrey', height: 400, width: '100%' }}>
-          memo(() => 
+          
           <DataGrid
             rows={datarows}
             columns={columns}
@@ -182,7 +186,7 @@ function App() {
             rowsPerPageOptions={[5]}
             checkboxSelection={true} {...datarows}
           />
-          )
+          
           
         </div>
         </Tab>
