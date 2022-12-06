@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useState, useMemo} from 'react';
 import { Button, Tabs, Tab, Container, Nav, Navbar, Form, Modal, ModalDialog } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Web3 from 'web3';
@@ -20,11 +20,12 @@ function App() {
   const [articleName, setArticleName] = useState();
   const [articleCost, setArticleCost] = useState();
   const [articleDescription, setArticleDescription] = useState();
-  const [b2baritclesaddress, setb2barticlesaddress] = useState("0xA7eF103777Fb776b9b877B5D475E14Bb1f315914");
+  const [b2baritclesaddress, setb2barticlesaddress] = useState("0x5b1869D9A4C187F2EAa108f3062412ecf0526b24");
   const [numberOfArticlesForSale, setNumberOfArticlesForSale] = useState(0);
   const [articletopurchase, setArticleToPurchase] = useState();
   const columns = [
     { field: 'id', header: 'ID', width: 10},
+    { field: 'articleSeller', header: 'Seller', width: 150 },
     { field: 'articleName', headerName: 'Article', width: 130 },
     { field: 'articleDesc', headerName: 'Description', width: 130 },
     { field: 'articlePrice', headerName: 'Price', width: 10 }
@@ -68,7 +69,7 @@ function App() {
   })
 
 
-  useEffect(() => {
+  useMemo(() => {
     var web3 = new Web3(Web3.givenProvider);
     let counter = 0
     var _b2bInstance = new web3.eth.Contract(B2BABI, b2baritclesaddress)
@@ -78,10 +79,10 @@ function App() {
         //get article by the id
         _b2bInstance.methods.articles(element).call()
         .then(anArtical => {
-          
+            console.log(`anArtical ${anArtical.toString()}`)
             setdatarowsloading(true);
-              console.log(`{id: ${anArtical[0]}, articleName: ${anArtical[3]}, articleDesc: ${anArtical[4]}, articlePrice: ${anArtical[5]} `)
-              setdatarows(datarows => [...datarows, {id: anArtical[0], articleName: anArtical[3], articleDesc: anArtical[4], articlePrice: anArtical[5]} ])
+              /*console.log(`{id: ${anArtical[0]}, articleSeller: ${anArtical[1]}, articleName: ${anArtical[3]}, articleDesc: ${anArtical[4]}, articlePrice: ${anArtical[5]} `)*/
+              setdatarows(datarows => [...datarows, {id: anArtical[0], articaleSeller: anArtical[1], articleName: anArtical[3], articleDesc: anArtical[4], articlePrice: anArtical[5]} ])
         })
       });
       setdatarowsloading(false); 
@@ -93,7 +94,22 @@ function App() {
     var web3 = new Web3(Web3.givenProvider);
     var _b2bInstance = new web3.eth.Contract(B2BABI, b2baritclesaddress)
     _b2bInstance.methods.sellArticle(articleName, articleDescription, articleCost).send({from: currentAccount});
-    handleShow();
+    _b2bInstance.LogSellArticle()(() => {
+    }).on("connected", function(subscriptionId){
+        console.log('SubID: ',subscriptionId);
+    })
+    .on('data', function(event){
+        console.log('Event:', event);
+        //console.log('Seller Wallet Address: ',event.returnValues.address);
+        //Write send email process here!
+    })
+    .on('changed', function(event){
+        //Do something when it is removed from the database.
+    })
+    .on('error', function(error, receipt) {
+        console.log('Error:', error, receipt);
+    });
+    handleShow()
   } 
 
   //returns the number of articles for sale
@@ -158,6 +174,7 @@ function App() {
             </Modal>
         </div>
         <div style={{ backgroundColor:'lightgrey', height: 400, width: '100%' }}>
+          memo(() => 
           <DataGrid
             rows={datarows}
             columns={columns}
@@ -165,6 +182,8 @@ function App() {
             rowsPerPageOptions={[5]}
             checkboxSelection={true} {...datarows}
           />
+          )
+          
         </div>
         </Tab>
         <Tab eventKey="B2BBuy" title="Buy Article">
