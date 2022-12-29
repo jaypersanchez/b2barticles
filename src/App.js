@@ -20,7 +20,7 @@ function App() {
   const [articleName, setArticleName] = useState();
   const [articleCost, setArticleCost] = useState();
   const [articleDescription, setArticleDescription] = useState();
-  const [b2baritclesaddress, setb2barticlesaddress] = useState("0x5b1869D9A4C187F2EAa108f3062412ecf0526b24");
+  const [b2baritclesaddress, setb2barticlesaddress] = useState("0xd9145CCE52D386f254917e481eB44e9943F39138");
   const [numberOfArticlesForSale, setNumberOfArticlesForSale] = useState(0);
   const [articletopurchase, setArticleToPurchase] = useState();
   const columns = [
@@ -98,21 +98,6 @@ function App() {
         console.log(JSON.stringify(results.events.LogSellArticle.returnValues[0]))
         /*console.log(`add article ${JSON.parse(results.returnValues._id)} ${JSON.parse(results.returnValues._name)}`)*/
     })
-    /*_b2bInstance.LogSellArticle()(() => {
-    }).on("connected", function(subscriptionId){
-        console.log('SubID: ',subscriptionId);
-    })
-    .on('data', function(event){
-        console.log('Event:', event);
-        //console.log('Seller Wallet Address: ',event.returnValues.address);
-        //Write send email process here!
-    })
-    .on('changed', function(event){
-        //Do something when it is removed from the database.
-    })
-    .on('error', function(error, receipt) {
-        console.log('Error:', error, receipt);
-    });*/
     handleShow()
   } 
 
@@ -134,11 +119,15 @@ function App() {
 
   const purchaseArticle = async() => {
     var web3 = new Web3(Web3.givenProvider);
-    var _b2bInstance = new web3.eth.Contract(B2BABI, b2baritclesaddress, {
-      from: currentAccount, // default from address
-      gasPrice: '20000000000' // default gas price in wei, 20 gwei in this case
+    var _b2bInstance = new web3.eth.Contract(B2BABI, b2barticlesaddress)
+    await _b2bInstance.methods.buyArticle(articletopurchase).send({
+      from: currentAccount,
+      value: web3.utils.toWei(pricetopurchase),
+      gas: "2100000"
     })
-    await _b2bInstance.methods.buyArticle(articletopurchase).send({from: currentAccount}); 
+    .then(result => {
+      console.log(JSON.stringify(result))
+    })
   }
 
   return (
